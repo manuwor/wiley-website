@@ -1,0 +1,107 @@
+@import "../node_modules/bootstrap/scss/bootstrap.scss";
+$fontBold: "LINESeedSansTH_He";
+$fontRegular: "LINESeedSansTH_Rg";
+$fontMedium: "LINESeedSansTH_Bd";
+$fontLight: "LINESeedSansTH_Th";
+
+$primary-color: #4880FF;
+$bg-color: #F1F6FE;
+$dark-blue: #4880FF;
+$text-black: #3D4655;
+$light-blue: #D9E4FF;
+$green-color: #00B69B;
+$dark-orange: #FF9066;
+$text-gray: #555E6D;
+$text-blue: #8696BB;
+$pink: #D39FE5;
+$gray-color: #F3F3F3;
+$light-orange: #FFE8DF;
+$radius: 16px;
+$shadow-box: 0px 0px 4px #112644;
+$gradient-primary: linear-gradient(85deg, #AF34F4 0%, #7321E4 39.97%, #4008DC 100%);
+
+.text-green{
+    color: $green-color !important;
+}
+
+.text-blue{
+    color: $dark-blue !important;
+}
+
+a {
+    cursor: pointer;
+    color: #64b5fc;
+    margin-top: 16px;
+    font-family: $fontMedium;
+    font-size: 14px;
+    text-decoration: underline;
+}
+
+body {
+    font-family: $fontRegular !important;
+    background-color: white;
+    scrollbar-width: none;
+    justify-content: center;
+    display: flex;
+    width: 1200px;
+    max-width: 1200px;
+
+    @include media-breakpoint-up(xl){
+        max-width: 100%;
+        width: 100vw;
+    }
+    @include media-breakpoint-down(xl){
+        max-width: 100%;
+        width: 100vw;
+    }
+}
+
+.App {
+    min-height: 100vh;
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+
+    @include media-breakpoint-up(xl){
+        max-width: 100%;
+        width: 100vw;
+    }
+
+    @include media-breakpoint-down(xl){
+        max-width: 100%;
+        width: 100vw;
+    }
+}
+
+
+
+.MuiFormLabel-root {
+    font-family: $fontRegular !important;
+}
+
+.MuiChip-label {
+    font-family: $fontMedium !important;
+}
+
+
+@font-face {
+    font-family: $fontBold;
+    src: local("LINESeedSansTH_He"), url(../public/fonts/LINESeedSansTH_He.ttf) format("truetype");
+}
+
+@font-face {
+    font-family: $fontMedium;
+    src: local("LINESeedSansTH_Bd"), url(../public/fonts/LINESeedSansTH_Bd.ttf) format("truetype");
+}
+
+@font-face {
+    font-family: $fontRegular;
+    src: local("LINESeedSansTH_Rg"), url(../public/fonts/LINESeedSansTH_Rg.ttf) format("truetype");
+}
+
+@font-face {
+    font-family: $fontLight;
+    src: local("LINESeedSansTH_Th"), url(../public/fonts/LINESeedSansTH_Th.ttf) format("truetype");
+}
