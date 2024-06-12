@@ -1,4 +1,5 @@
 export interface Data {
+    status: string,
     isbn: number;
     author: string;
     title: string;

@@ -17,7 +17,21 @@
 
         
     }
+    .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
 
+    .table-column-title{
+        font-size: 12px;
+        font-family: $fontRegular;
+    }
+
+    .table-tranche-title{
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
     .table-control{
         margin-top: 24px;
     }
@@ -28,7 +42,66 @@
     }
 
     .table-header-column{
+        display: flex;
+        cursor: pointer;
         font-family: $fontMedium;
+
+        .table-header-icon{
+            width: 10px;
+            height: 10px;
+            object-fit: contain;
+            margin-top: auto;
+            margin-bottom: auto;
+            margin-left: 4px;
+        }
+    }
+
+    .table-title-control{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .table-filter-control{
+        display: flex;
+        margin-top: 12px;
+
+        .table-filter-item{
+            border-radius: 8px;
+            padding: 4px 8px;
+            display: flex;
+            background-color: $primary-color;
+
+            .table-filter-text{
+                color: white;
+                font-size: 14px;
+                font-family: $fontMedium;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .table-filter-clear-img{
+                width: 15px;
+                height: 15px;
+                margin-left: 14px;
+                object-fit: contain;
+                cursor: pointer;
+                margin-top: auto;
+                margin-bottom: auto;
+            }
+        }
+    }
+
+    .table-link-a{
+        font-size: 13px;
+        font-family: $fontRegular;
+        color: $text-black;
+        margin-top: 2px !important;
+        text-decoration: none;
+
+        &:hover{
+            color: $dark-blue;
+            text-decoration: underline;
+        }
     }
 
     .MuiTextField-root,.MuiTextField-root, .MuiInputBase-root{

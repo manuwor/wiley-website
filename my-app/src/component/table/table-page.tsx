@@ -13,8 +13,13 @@ import ALBASA_JSON from "../../assets/json/albasa.json";
 import "./table-page.scss";
 import { Box, Button, TextField } from '@mui/material';
 import { Form } from 'react-bootstrap';
+import IC_CLEAR from '../../assets/assets/images/clear.png';
+import IC_SORT_UP from '../../assets/assets/images/caret-up.png';
+import IC_SORT_DOWN from '../../assets/assets/images/caret-down.png';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 interface Column {
-    id: 'isbn' | 'author' | 'title' | 'fees' | 'subject' | 'pub_year' | 'url_link' | 'school' | 'consortium' | 'tranche' | 'eal_account' | 'total_amount' | 'after_discount' | 'remarks';
+    id: 'isbn' | 'title' | 'author' | 'subject' | 'pub_year' | 'school' | 'tranche';
     label: string;
     minWidth?: number;
     align?: 'right';
@@ -22,26 +27,19 @@ interface Column {
 }
 
 const columns: readonly Column[] = [
-    { id: 'isbn', label: 'ISBN', minWidth: 50 },
-    { id: 'author', label: 'Author', minWidth: 100 },
-    { id: 'title', label: 'Title', minWidth: 450 },
-    { id: 'fees', label: 'Fees', minWidth: 100 },
+    { id: 'isbn', label: 'ISBN', minWidth: 150 },
+    { id: 'title', label: 'Title', minWidth: 350 },
+    { id: 'author', label: 'Author', minWidth: 200 },
     { id: 'subject', label: 'Subject', minWidth: 100 },
     { id: 'pub_year', label: 'Pub Year', minWidth: 100 },
-    { id: 'url_link', label: 'URL Link', minWidth: 100 },
-    { id: 'school', label: 'School', minWidth: 100 },
-    { id: 'consortium', label: 'Consortium', minWidth: 100 },
+    { id: 'school', label: 'School', minWidth: 250 },
     { id: 'tranche', label: 'Tranche', minWidth: 100 },
-    { id: 'eal_account', label: 'EAL Account', minWidth: 300 },
-    { id: 'total_amount', label: 'Total Amount', minWidth: 300 },
-    { id: 'after_discount', label: 'After Agent Discount', minWidth: 300 },
-    { id: 'remarks', label: 'Remarks', minWidth: 300 },
-
 ];
 
 
 
 function createData(
+    status: string,
     isbn: number,
     author: string,
     title: string,
@@ -57,17 +55,20 @@ function createData(
     after_discount: string,
     remarks: string
 ): Data {
-    return { isbn, author, title, fees, subject, pub_year, url_link, school, consortium, tranche, eal_account, total_amount, after_discount, remarks };
+    return { status, isbn, author, title, fees, subject, pub_year, url_link, school, consortium, tranche, eal_account, total_amount, after_discount, remarks };
 }
 
 
 const TablePageComponent = ({ nameMod }: any) => {
-
+    const [sortOrder, setSortOrder] = useState('asc');
+    const [currentFilter, setCurrentFilter] = useState('');
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [name, setName] = useState(nameMod);
     const [rows, setRows] = useState<Data[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [originalRow, setOriginalRow] = useState<Data[]>([]);
+    const [arrayFilter, setArrayFilter] = useState<String[]>([]);
 
     const handleInputChange = (event) => {
         setSearchQuery(event.target.value);
@@ -79,6 +80,121 @@ const TablePageComponent = ({ nameMod }: any) => {
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
+    const sortByAuthorAsc = () => {
+        const sortedBooks = [...rows].sort((a, b) => a.author.localeCompare(b.author));
+        setRows(sortedBooks);
+    };
+
+    const sortByAuthorDesc = () => {
+        const sortedBooks = [...rows].sort((a, b) => b.author.localeCompare(a.author));
+        setRows(sortedBooks);
+    };
+
+    const sortBySubjectAsc = () => {
+        const sortedBooks = [...rows].sort((a, b) => a.subject.localeCompare(b.subject));
+        setRows(sortedBooks);
+    };
+
+    const sortBySubjectDesc = () => {
+        const sortedBooks = [...rows].sort((a, b) => b.subject.localeCompare(a.subject));
+        setRows(sortedBooks);
+    };
+
+    const sortByTitleAsc = () => {
+        const sortedBooks = [...rows].sort((a, b) => a.title.localeCompare(b.title));
+        setRows(sortedBooks);
+    };
+
+    const sortByTitleDesc = () => {
+        const sortedBooks = [...rows].sort((a, b) => b.title.localeCompare(a.title));
+        setRows(sortedBooks);
+    };
+
+    const sortByIsbnAsc = () => {
+        const sortedBooks = [...rows].sort((a, b) => a.isbn - b.isbn);
+        setRows(sortedBooks);
+    };
+
+    const sortByIsbnDesc = () => {
+        const sortedBooks = [...rows].sort((a, b) => b.isbn - a.isbn);
+        setRows(sortedBooks);
+    };
+    const clickFilter = (column) => {
+        if (column == 'author') {
+            if (sortOrder == 'asc') {
+                sortByAuthorDesc();
+                setSortOrder('desc');
+                setCurrentFilter(column);
+            } else {
+                sortByAuthorAsc();
+                setSortOrder('asc');
+                setCurrentFilter(column);
+            }
+
+        } else if (column == 'title') {
+            if (sortOrder == 'asc') {
+                sortByTitleAsc();
+                setSortOrder('desc');
+                setCurrentFilter(column);
+            } else {
+                sortByTitleDesc();
+                setSortOrder('asc');
+                setCurrentFilter(column);
+            }
+
+        } else if (column == 'subject') {
+            if (sortOrder == 'asc') {
+                sortBySubjectAsc();
+                setSortOrder('desc');
+                setCurrentFilter(column);
+            } else {
+                sortBySubjectDesc();
+                setSortOrder('asc');
+                setCurrentFilter(column);
+            }
+
+        } else if (column == 'isbn') {
+            if (sortOrder == 'asc') {
+                sortByIsbnAsc();
+                setSortOrder('desc');
+                setCurrentFilter(column);
+            } else {
+                sortByIsbnDesc();
+                setSortOrder('asc');
+                setCurrentFilter(column);
+            }
+
+        }
+
+    }
+    const exportToExcel = (data: any[], filename: string) => {
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(dataBlob, `${filename}.xlsx`);
+      };
+    const handleFilterSubject = (value: string) => {
+        const arryFilter = [...arrayFilter];
+        if(arryFilter.filter((item) => item == value).length > 0){
+
+        }else{
+            const filtered = [...rows].filter(book => book.subject === value);
+            setRows(filtered);
+            arryFilter.push(value);
+            setArrayFilter(arryFilter)
+        }
+       
+       
+    };
+
+    const deleteFilter = (value: string) => {
+        setRows(originalRow);
+        const arryFilter = [...arrayFilter];
+        arryFilter.splice(arryFilter.indexOf(value),1);
+        setArrayFilter(arryFilter)
+    }
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
@@ -92,23 +208,24 @@ const TablePageComponent = ({ nameMod }: any) => {
             ALBASA_JSON.map((item) => {
                 const rowItem = item;
 
-                rowsdata.push(createData(item.ISBN, item.Author,
-                    item.Title,
-                    item["Fees - US$"],
-                    item['Subject (Specialized Subject Area)'],
-                    item['Pub Year'],
-                    item['URL Link'],
-                    item.School,
-                    item.Consortium,
-                    item.Tranche,
-                    item['EAL Account'],
-                    item['Total Amount'],
-                    item['After Agent Discount'],
-                    item.Remarks));
+                rowsdata.push(createData(item.status, item.isbn, item.author,
+                    item.title,
+                    item.fees,
+                    item.subject,
+                    item.pub_year,
+                    item.url_link,
+                    item.school,
+                    item.consortium,
+                    item.tranche,
+                    item.eal_account,
+                    item.total_amount,
+                    item.after_discount,
+                    item.remarks));
 
 
             })
             setRows(rowsdata);
+            setOriginalRow(rowsdata);
         }
 
     }, [])
@@ -116,22 +233,22 @@ const TablePageComponent = ({ nameMod }: any) => {
     const querySearch = (query) => {
 
         const rowsdata = new Array();
-        ALBASA_JSON.filter((item) => item.Title.includes(query) || item.Author.includes(query) || String(item["ISBN"]).includes(query)).map((item) => {
+        ALBASA_JSON.filter((item) => item.title.includes(query) || item.author.includes(query) || String(item.isbn).includes(query)).map((item) => {
             const rowItem = item;
 
-            rowsdata.push(createData(item.ISBN, item.Author,
-                item.Title,
-                item["Fees - US$"],
-                item['Subject (Specialized Subject Area)'],
-                item['Pub Year'],
-                item['URL Link'],
-                item.School,
-                item.Consortium,
-                item.Tranche,
-                item['EAL Account'],
-                item['Total Amount'],
-                item['After Agent Discount'],
-                item.Remarks));
+            rowsdata.push(createData(item.status, item.isbn, item.author,
+                item.title,
+                item.fees,
+                item.subject,
+                item.pub_year,
+                item.url_link,
+                item.school,
+                item.consortium,
+                item.tranche,
+                item.eal_account,
+                item.total_amount,
+                item.after_discount,
+                item.remarks));
 
 
         })
@@ -141,6 +258,7 @@ const TablePageComponent = ({ nameMod }: any) => {
     return (
 
         <div className="table-pages-control">
+            {/* <Button className='ml-auto' onClick={() => exportToExcel(rows, 'save')}>Export to Excel</Button> */}
             <Box
                 className='table-search-control'
                 component="form"
@@ -158,6 +276,20 @@ const TablePageComponent = ({ nameMod }: any) => {
                     Search
                 </Button>
             </Box>
+
+            <div className='table-filter-control'>
+                {
+                    arrayFilter && arrayFilter.map((item) => {
+
+                        return (
+                            <div className='table-filter-item'>
+                                <span className='table-filter-text'>{item}</span>
+                                <img src={IC_CLEAR} className='table-filter-clear-img' onClick={() => deleteFilter(item+"")}></img>
+                            </div>
+                        )
+                    })
+                }
+            </div>
 
 
             <Paper style={{ width: '100%' }} className='table-control'>
@@ -180,8 +312,43 @@ const TablePageComponent = ({ nameMod }: any) => {
                                         align={column.align}
                                         style={{ minWidth: column.minWidth }}
                                     >
-                                        <div className="table-header-column">
-                                            {column.label}</div>
+                                        {
+                                            column.id == "author" ?
+                                                <div className="table-header-column"
+                                                    onClick={() => clickFilter(column.id)}>
+                                                    {column.label}{
+                                                        currentFilter == column.id && sortOrder == 'asc' ?
+                                                            <img src={IC_SORT_UP} className='table-header-icon'></img>
+                                                            : currentFilter == column.id && sortOrder == 'desc' ? <img src={IC_SORT_DOWN} className='table-header-icon'></img> : <></>
+                                                    }</div> :
+                                                column.id == "title" ?
+                                                    <div className="table-header-column"
+                                                        onClick={() => clickFilter(column.id)}>
+                                                        {column.label}{
+                                                            currentFilter == column.id && sortOrder == 'asc' ?
+                                                                <img src={IC_SORT_UP} className='table-header-icon'></img>
+                                                                : currentFilter == column.id && sortOrder == 'desc' ? <img src={IC_SORT_DOWN} className='table-header-icon'></img> : <></>
+                                                        }</div> :
+                                                    column.id == "subject" ?
+                                                        <div className="table-header-column"
+                                                            onClick={() => clickFilter(column.id)}>
+                                                            {column.label}{
+                                                                currentFilter == column.id && sortOrder == 'asc' ?
+                                                                    <img src={IC_SORT_UP} className='table-header-icon'></img>
+                                                                    : currentFilter == column.id && sortOrder == 'desc' ? <img src={IC_SORT_DOWN} className='table-header-icon'></img> : <></>
+                                                            }</div> :
+                                                        column.id == "isbn" ?
+                                                            <div className="table-header-column"
+                                                                onClick={() => clickFilter(column.id)}>
+                                                                {column.label}{
+                                                                    currentFilter == column.id && sortOrder == 'asc' ?
+                                                                        <img src={IC_SORT_UP} className='table-header-icon'></img>
+                                                                        : currentFilter == column.id && sortOrder == 'desc' ? <img src={IC_SORT_DOWN} className='table-header-icon'></img> : <></>
+                                                                }</div> :
+                                                            <div className="table-header-column">
+                                                                {column.label}</div>
+                                        }
+
 
 
                                     </TableCell>
@@ -199,9 +366,18 @@ const TablePageComponent = ({ nameMod }: any) => {
                                                 return (
                                                     <TableCell key={column.id} align={column.align} >
                                                         {
-                                                            column.format && typeof value === 'number'
-                                                                ? column.format(value)
-                                                                : value
+                                                            column.id == "title" ?
+                                                                <div className='table-title-control'>
+                                                                    <a href={row.url_link + ""} className='table-link-a' target='_blank'>{value}</a> </div> :
+                                                                column.id == 'tranche' ?
+                                                                    <div className='d-flex'>
+                                                                        <span className='table-tranche-title'>{value}</span> </div> :
+                                                                    column.id == 'subject' ?
+                                                                        <div className='d-flex'>
+                                                                            <span className='table-tranche-title' onClick={() => handleFilterSubject(value + "")}>{value}</span> </div> :
+                                                                        column.format && typeof value === 'number'
+                                                                            ? column.format(value)
+                                                                            : <span className='table-column-title'>{value}</span>
                                                         }
 
                                                     </TableCell>

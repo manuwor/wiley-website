@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "default": "wiley-web"
+  },
+  "targets": {
+    "wiley-web": {
+      "hosting": {
+        "wiley-web": [
+          "wiley-web"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}
